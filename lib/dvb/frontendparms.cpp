@@ -65,14 +65,14 @@ int eDVBFrontendStatus::getBER() const
 
 int eDVBFrontendStatus::getSNR() const
 {
-	if (!frontend || getState() == iDVBFrontend_ENUMS::stateTuning) return 0;
+	if (!frontend) return 0;
 	return frontend->readFrontendData(iFrontendInformation_ENUMS::signalQuality);
 }
 
 int eDVBFrontendStatus::getSNRdB() const
 {
 	int value;
-	if (!frontend || getState() == iDVBFrontend_ENUMS::stateTuning) return 0;
+	if (!frontend) return 0;
 	value = frontend->readFrontendData(iFrontendInformation_ENUMS::signalQualitydB);
 	if (value == 0x12345678)
 	{
