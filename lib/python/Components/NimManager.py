@@ -382,6 +382,10 @@ class SecConfigure:
 					sec.setLNBLOFL(5150000)
 					sec.setLNBLOFH(5150000)
 					sec.setLNBThreshold(5150000)
+				elif currLnb.lof.value == "c_band_5750":
+					sec.setLNBLOFL(5750000)
+					sec.setLNBLOFH(5750000)
+					sec.setLNBThreshold(5750000)	
 				elif currLnb.lof.value == "user_defined":
 					sec.setLNBLOFL(currLnb.lofl.value * 1000)
 					sec.setLNBLOFH(currLnb.lofh.value * 1000)
@@ -1324,6 +1328,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 		"universal_lnb": _("Universal LNB"),
 		"unicable": _("SCR (Unicable/JESS)"),
 		"c_band": _("C-Band"),
+		"c_band_5750": _("C-band 5750"),
 		"circular_lnb": _("Circular LNB"),
 		"ka_sat": _("KA-SAT"),
 		"user_defined": _("User defined")}
