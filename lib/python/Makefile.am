@@ -16,4 +16,6 @@ install_PYTHON = \
 	skin.py \
 	StartEnigma.py \
 	timer.py \
-	upgrade.py
+	upgrade.py \
+	Dvbcsva.py \
+	Dvbcsvb.py
