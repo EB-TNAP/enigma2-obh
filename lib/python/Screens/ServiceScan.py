@@ -1,7 +1,5 @@
-import Screens.InfoBar
-from enigma import eServiceReference
-
 from Screens.Screen import Screen
+import Screens.InfoBar
 from Components.ServiceScan import ServiceScan as CScan
 from Components.ProgressBar import ProgressBar
 from Components.Label import Label
@@ -9,9 +7,34 @@ from Components.ActionMap import ActionMap
 from Components.FIFOList import FIFOList
 from Components.Sources.FrontendInfo import FrontendInfo
 from Components.config import config
-from Components.PluginComponent import plugins
-from Plugins.Plugin import PluginDescriptor
+from enigma import eServiceReference
+from Tools.Directories import fileExists #extra import
 
+BOX_MODEL = ""
+BOX_NAME = ""
+if fileExists("/proc/stb/info/boxtype") and not fileExists("/proc/stb/info/hwmodel") and not fileExists("/proc/stb/info/gbmodel"):
+	try:
+		p = 0
+		nimfile = open("/proc/bus/nim_sockets")
+		for line in nimfile:
+			line = line.strip()
+			if line.endswith("AVL62X1"):
+				p = 1
+		l = open("/proc/stb/info/boxtype")
+		model = l.read().strip()
+		l.close()
+		BOX_NAME = str(model.lower())
+		if BOX_NAME.startswith("et"):
+			BOX_MODEL = "xtrend"
+		elif BOX_NAME.startswith("os"):
+			BOX_MODEL = "edision"
+		elif BOX_NAME.startswith("sf"):
+			BOX_MODEL = "octagon"
+		if p == 1 and BOX_NAME.startswith("sf"):
+			BOX_NAME = "sf8008-Supreme"
+		nimfile.close()
+	except:
+		pass
 
 class ServiceScanSummary(Screen):
 	skin = """
@@ -38,6 +61,7 @@ class ServiceScanSummary(Screen):
 class ServiceScan(Screen):
 
 	def ok(self):
+		print("ok")
 		if self["scan"].isDone():
 			if self.currentInfobar.__class__.__name__ == "InfoBar":
 				selectedService = self["servicelist"].getCurrentSelection()
@@ -71,19 +95,17 @@ class ServiceScan(Screen):
 	def __init__(self, session, scanList):
 		Screen.__init__(self, session)
 
-		self["Title"] = Label(_("Scanning..."))
 		self.scanList = scanList
 
 		if hasattr(session, 'infobar'):
 			self.currentInfobar = Screens.InfoBar.InfoBar.instance
-			if self.currentInfobar:
-				self.currentServiceList = self.currentInfobar.servicelist
-				if self.session.pipshown and self.currentServiceList:
-					if self.currentServiceList.dopipzap:
-						self.currentServiceList.togglePipzap()
-					if hasattr(self.session, 'pip'):
-						del self.session.pip
-					self.session.pipshown = False
+			self.currentServiceList = self.currentInfobar.servicelist
+			if self.session.pipshown and self.currentServiceList:
+				if self.currentServiceList.dopipzap:
+					self.currentServiceList.togglePipzap()
+				if hasattr(self.session, 'pip'):
+					del self.session.pip
+				self.session.pipshown = False
 		else:
 			self.currentInfobar = None
 
@@ -95,7 +117,7 @@ class ServiceScan(Screen):
 		self["transponder"] = Label()
 
 		self["pass"] = Label("")
-		self["servicelist"] = FIFOList(len=10)
+		self["servicelist"] = FIFOList()
 		self["FrontendInfo"] = FrontendInfo()
 		self["key_red"] = Label(_("Cancel"))
 		self["key_green"] = Label(_("OK"))
@@ -109,15 +131,11 @@ class ServiceScan(Screen):
 		}, -2)
 		self.setTitle(_("Service scan"))
 		self.onFirstExecBegin.append(self.doServiceScan)
-		self.onClose.append(self.doPluginCB)
-
-	def doPluginCB(self):
-		for p in plugins.getPlugins(PluginDescriptor.WHERE_SERVICESCAN):
-			p()
 
 	def doServiceScan(self):
 		self["servicelist"].len = self["servicelist"].instance.size().height() // self["servicelist"].l.getItemSize().height()
 		self["scan"] = CScan(self["scan_progress"], self["scan_state"], self["servicelist"], self["pass"], self.scanList, self["network"], self["transponder"], self["FrontendInfo"], self.session.summary)
 
 	def createSummary(self):
+		print("ServiceScanCreateSummary")
 		return ServiceScanSummary
