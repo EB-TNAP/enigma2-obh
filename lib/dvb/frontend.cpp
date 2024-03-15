@@ -1287,7 +1287,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 				break;
 		}
 	}
-	else if (!strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")) // dual plug & play tuner GB UE/Quad UHD 4K
+	else if (!strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")) // dual plug & play tuner GB UE/Quad UHD 4K 
 	{
 		ret = (int)(snr / 15);
 	}
@@ -1398,7 +1398,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = snr;
 	}
-
+	
 	signalqualitydb = ret;
 	if (ret == 0x12345678) // no snr db calculation avail.. return untouched snr value..
 	{
@@ -1451,7 +1451,7 @@ int eDVBFrontend::readFrontendData(int type)
 	Neither the scaling nor the point at which the SNR is measured is defined in the API, leading to inconsistencies between tuners and need for tuner-specific code above  to get values for signalQualitydB and signalQuality from the legacy API
 	Where such code does not exist, those parameters have a high probability of being wrong.
 */
-			if (m_state == stateLock)
+			if (true)
 			{
 				uint16_t snr = 0;
 				if (!m_simulate)
@@ -1459,7 +1459,8 @@ int eDVBFrontend::readFrontendData(int type)
 					if (ioctl(m_fd, FE_READ_SNR, &snr) < 0 && errno != ERANGE)
 						eDebug("[eDVBFrontend] FE_READ_SNR failed: %m");
 				}
-				return snr;
+				if (snr < 55536)
+					return snr;
 			}
 			break;
 		case iFrontendInformation_ENUMS::signalQuality:
@@ -1483,7 +1484,7 @@ int eDVBFrontend::readFrontendData(int type)
 	LSB = 0.01 dB.
 	Values derived from the legacy API are likely to be unreliable.
 */
-			if (m_state == stateLock)
+			if (true)
 			{
 				int signalquality = 0;
 				int signalqualitydb = 0;
@@ -1903,7 +1904,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 			}
 			case eSecCommand::START_TUNE_TIMEOUT:
 			{
-				int tuneTimeout = m_sec_sequence.current()->timeout;
+				int tuneTimeout = (m_sec_sequence.current()->timeout)-2000;
 				eDebugNoSimulate("[eDVBFrontend%d] startTuneTimeout %d", m_dvbid, tuneTimeout);
 				if (!m_simulate)
 					m_timeout->start(tuneTimeout, 1);
@@ -1911,7 +1912,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 				break;
 			}
 			case eSecCommand::SET_TIMEOUT:
-				m_timeoutCount = m_sec_sequence.current()++->val;
+				m_timeoutCount = (m_sec_sequence.current()++->val)-1000;
 				eDebugNoSimulate("[eDVBFrontend%d] set timeout %d", m_dvbid, m_timeoutCount);
 				break;
 			case eSecCommand::IF_TIMEOUT_GOTO:
@@ -2665,7 +2666,7 @@ RESULT eDVBFrontend::tune(const iDVBFrontendParameters &where, bool blindscan)
 	if (m_blindscan)
 	{
 		/* blindscan iterations can take a long time, use a long timeout */
-		timeout = 60000;
+		timeout = 20000;
 	}
 	else
 	{
