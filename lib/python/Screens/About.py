@@ -25,10 +25,10 @@ class AboutBase(TextBox):
 	def __init__(self, session, labels=None):
 		TextBox.__init__(self, session, label="AboutScrollLabel")
 		if labels:
-			self["lab1"] = StaticText(_("OpenBh"))
-			self["lab2"] = StaticText(_("From the OpenBh Team"))
+			self["lab1"] = StaticText(_("OpenBh - Unoffical Build"))
+			self["lab2"] = StaticText(_("Built from OBH Sources"))
 			if SystemInfo["imagetype"] == "release":
-				self["lab3"] = StaticText(_("Support at") + " www.openbh.net")
+				self["lab3"] = StaticText(_("Support at") + "N/A")
 			elif SystemInfo["imagetype"] == "community":
 				self["lab3"] = StaticText(_("Support at") + " blackhole-community.com")
 
