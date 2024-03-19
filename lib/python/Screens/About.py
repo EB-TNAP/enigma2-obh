@@ -28,7 +28,7 @@ class AboutBase(TextBox):
 			self["lab1"] = StaticText(_("OpenBh - Unoffical Build"))
 			self["lab2"] = StaticText(_("Built from OBH Sources"))
 			if SystemInfo["imagetype"] == "release":
-				self["lab3"] = StaticText(_("Support at") + "N/A")
+				self["lab3"] = StaticText(_("Support at") + " N/A")
 			elif SystemInfo["imagetype"] == "community":
 				self["lab3"] = StaticText(_("Support at") + " blackhole-community.com")
 
